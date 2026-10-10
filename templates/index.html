@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to EduGenie 🧠✨</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            color: #1a202c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 750px;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 15px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-weight: 700;
+            font-size: 15px;
+            color: #2d3748;
+            margin-bottom: 8px;
+            text-align: left;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            justify-content: center;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #3182ce;
+        }
+
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background-color: #2563eb;
+        }
+
+        .answer-label {
+            font-weight: 700;
+            font-size: 15px;
+            color: #2d3748;
+            margin-top: 10px;
+            margin-bottom: 6px;
+        }
+
+        .response-box {
+            background-color: #f8fafc;
+            border: 1px solid #edf2f7;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            min-height: 50px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #2d3748;
+            white-space: pre-wrap;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+            font-family: Consolas, Monaco, monospace; /* Screenshot-la irukkura madhiri font style */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Welcome to EduGenie 🧠✨</h1>
+    <p class="subtitle">Your personal AI tutor for learning support!</p>
+
+    <!-- 1. Ask EduGenie a Question -->
+    <div class="section-title">Ask EduGenie a Question:</div>
+    <form action="/generate" method="post">
+        <div class="input-group">
+            <input type="text" name="prompt" placeholder="Why is the sky blue?" value="{{ prompt if prompt else '' }}" required>
+            <button type="submit">Get Answer</button>
+        </div>
+    </form>
+    {% if response %}
+    <div class="answer-label">Answer:</div>
+    <div class="response-box">{{ response }}</div>
+    {% endif %}
+
+    <!-- 2. Need an Explanation? -->
+    <div class="section-title">Need an Explanation?</div>
+    <form action="/explain" method="post">
+        <div class="input-group">
+            <input type="text" name="topic" placeholder="Photosynthesis" value="{{ topic if topic else '' }}" required>
+            <button type="submit">Explain</button>
+        </div>
+    </form>
+    {% if explain_response %}
+    <div class="answer-label">Answer:</div>
+    <div class="response-box">{{ explain_response }}</div>
+    {% endif %}
+
+    <!-- 3. Summarize a Paragraph -->
+    <div class="section-title">Summarize a Paragraph:</div>
+    <form action="/summarize" method="post">
+        <div class="input-group">
+            <input type="text" name="content" placeholder="Paste long content to summarize" value="{{ content if content else '' }}" required>
+            <button type="submit">Summarize</button>
+        </div>
+    </form>
+    {% if summary_response %}
+    <div class="answer-label">Answer:</div>
+    <div class="response-box">{{ summary_response }}</div>
+    {% endif %}
+
+    <!-- 4. Generate a Quiz -->
+    <div class="section-title">Generate a Quiz:</div>
+    <form action="/quiz" method="post">
+        <div class="input-group">
+            <input type="text" name="quiz_topic" placeholder="Solar System" value="{{ quiz_topic if quiz_topic else '' }}" required>
+            <button type="submit">Generate Quiz</button>
+        </div>
+    </form>
+    {% if quiz_response %}
+    <div class="answer-label">Answer:</div>
+    <div class="response-box">{{ quiz_response }}</div>
+    {% endif %}
+
+    <!-- 5. Get Learning Recommendations -->
+    <div class="section-title">Get Learning Recommendations:</div>
+    <form action="/recommendations" method="post">
+        <div class="input-group" style="flex-direction: column; align-items: center;">
+            <input type="text" name="rec_topic" placeholder="e.g. Linear Regression" value="{{ rec_topic if rec_topic else '' }}" style="width: 100%; margin-bottom: 8px;" required>
+            <button type="submit">Get Recommendations</button>
+        </div>
+    </form>
+    {% if rec_response %}
+    <div class="answer-label">Answer:</div>
+    <div class="response-box">{{ rec_response }}</div>
+    {% endif %}
+</div>
+
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduGenie - AI Learning Assistant</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to EduGenie 🧠✨</h1>
+        <p class="subtitle">Your personal AI tutor for learning support!</p>
+
+        <!-- Q&A Module -->
+        <div class="section-card">
+            <form id="qaForm">
+                <label><strong>Ask EduGenie a Question:</strong></label>
+                <div class="input-group">
+                    <input type="text" id="question" placeholder="Why is the sky blue?" required>
+                    <button type="submit">Get Answer</button>
+                </div>
+            </form>
+            <div id="qaResult" class="output"></div>
+        </div>
+
+        <!-- Explanation Module -->
+        <div class="section-card">
+            <form id="explainForm">
+                <label><strong>Need an Explanation?</strong></label>
+                <div class="input-group">
+                    <input type="text" id="topic" placeholder="Photosynthesis" required>
+                    <button type="submit">Explain</button>
+                </div>
+            </form>
+            <div id="explanationResult" class="output"></div>
+        </div>
+
+        <!-- Summarization Module -->
+        <div class="section-card">
+            <form id="summaryForm">
+                <label><strong>Summarize a Paragraph:</strong></label>
+                <div class="input-group">
+                    <input type="text" id="summaryText" placeholder="Paste long content to summarize" required>
+                    <button type="submit">Summarize</button>
+                </div>
+            </form>
+            <div id="summaryResult" class="output"></div>
+        </div>
+
+        <!-- Quiz Generation Module -->
+        <div class="section-card">
+            <form id="quizForm">
+                <label><strong>Generate a Quiz:</strong></label>
+                <div class="input-group">
+                    <input type="text" id="quizText" placeholder="Solar System" required>
+                    <button type="submit">Generate Quiz</button>
+                </div>
+            </form>
+            <div id="quizResult" class="output"></div>
+        </div>
+
+        <!-- Learning Path Module -->
+        <div class="section-card">
+            <form id="learnForm">
+                <label><strong>Get Learning Recommendations:</strong></label>
+                <div class="input-group">
+                    <input type="text" id="learnTopic" placeholder="e.g. Linear Regression" required>
+                    <button type="submit">Get Recommendations</button>
+                </div>
+            </form>
+            <div id="learnResult" class="output"></div>
+        </div>
+    </div>
+
+    <script>
+        // Q&A Handler
+        document.getElementById('qaForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const q = document.getElementById('question').value;
+            const resDiv = document.getElementById('qaResult');
+            resDiv.style.display = 'block';
+            resDiv.innerHTML = 'Thinking...';
+            const res = await fetch(`/qa?question=${encodeURIComponent(q)}`);
+            const data = await res.json();
+            resDiv.innerHTML = `<strong>Answer:</strong><br><br>${data.answer}`;
+        });
+
+        // Explanation Handler
+        document.getElementById('explainForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const topic = document.getElementById('topic').value;
+            const resDiv = document.getElementById('explanationResult');
+            resDiv.style.display = 'block';
+            resDiv.innerHTML = 'Generating explanation...';
+            const res = await fetch('/explain/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({topic})
+            });
+            const data = await res.json();
+            resDiv.innerHTML = `<strong>Explanation:</strong><br><br>${data.explanation}`;
+        });
+
+        // Summary Handler
+        document.getElementById('summaryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = document.getElementById('summaryText').value;
+            const resDiv = document.getElementById('summaryResult');
+            resDiv.style.display = 'block';
+            resDiv.innerHTML = 'Summarizing...';
+            const res = await fetch('/summarize/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({text})
+            });
+            const data = await res.json();
+            resDiv.innerHTML = `<strong>Summary:</strong><br><br>${data.summary}`;
+        });
+
+        // Quiz Handler
+        document.getElementById('quizForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = document.getElementById('quizText').value;
+            const resDiv = document.getElementById('quizResult');
+            resDiv.style.display = 'block';
+            resDiv.innerHTML = 'Generating quiz...';
+            const res = await fetch('/quiz', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({text})
+            });
+            const data = await res.json();
+            
+            if (!data.quiz || data.quiz.length === 0) {
+                resDiv.innerHTML = 'Failed to generate quiz. Please try again.';
+                return;
+            }
+
+            let html = '<strong>Quiz:</strong><br><br>';
+            data.quiz.forEach((q, idx) => {
+                html += `<div class="quiz-q">
+                    <p><strong>Q${idx + 1}:</strong>${q.question}</p>`;
+                q.options.forEach(opt => {
+                    html += `<label class="quiz-option">
+                        <input type="radio" name="q${idx}" value="${opt}"> ${opt}
+                    </label>`;
+                });
+                html += `<button onclick="checkAnswer(${idx}, '${q.answer.replace(/'/g, "\\'")}')" style="margin-top:8px; padding: 6px 12px;">Check Answer</button>
+                <div id="fb${idx}" class="feedback"></div></div><hr style="border:0; border-top:1px solid #eee;">`;
+            });
+            resDiv.innerHTML = html;
+        });
+
+        function checkAnswer(qIdx, correctAnswer) {
+            const selected = document.querySelector(`input[name="q${qIdx}"]:checked`);
+            const fbDiv = document.getElementById(`fb${qIdx}`);
+            if (!selected) {
+                fbDiv.className = 'feedback incorrect';
+                fbDiv.innerHTML = 'Please select an option!';
+                return;
+            }
+            if (selected.value === correctAnswer) {
+                fbDiv.className = 'feedback correct';
+                fbDiv.innerHTML = '✅ Correct!';
+            } else {
+                fbDiv.className = 'feedback incorrect';
+                fbDiv.innerHTML = `❌ Incorrect. Correct answer: ${correctAnswer}`;
+            }
+        }
+
+        // Learning Path Handler
+        document.getElementById('learnForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const topic = document.getElementById('learnTopic').value;
+            const resDiv = document.getElementById('learnResult');
+            resDiv.style.display = 'block';
+            resDiv.innerHTML = 'Building learning path...';
+            const res = await fetch(`/learn/recommendations?topic=${encodeURIComponent(topic)}`);
+            const data = await res.json();
+            resDiv.innerHTML = `<strong>Learning Recommendations for "${data.topic}":</strong><br><br>${data.recommendation}`;
+        });
+    </script>
+</body>
+</html>
